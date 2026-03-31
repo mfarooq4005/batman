@@ -1,4 +1,4 @@
-Step 1 — API endpoints browser سے test کریں
+9Step 1 — API endpoints browser سے test کریں
 Browser میں کھولیں:
 
 http://SERVER_IP:8090/docs
@@ -125,3 +125,39 @@ CREATE TABLE timing_policy (
  head_offset INT,
  grace_minutes INT
 );
+
+
+
+{
+  "identity": {
+    "name": "Attendance Assistant",
+    "theme": "helpful assistant",
+    "emoji": "📊"
+  },
+  "agent": {
+    "workspace": "~/.openclaw/workspace"
+  },
+  "channels": {
+    "whatsapp": {
+      "allowFrom": [
+        "+923001112233",
+        "+923347009111"
+      ],
+      "groups": {
+        "*": {
+          "requireMention": true
+        }
+      }
+    }
+  },
+  "env": {
+    "vars": {
+      "ATTENDANCE_API_BASE": "http://127.0.0.1:8090",
+      "ATTENDANCE_API_TOKEN": "super-secret-api-token"
+    },
+    "shellEnv": {
+      "enabled": true,
+      "timeoutMs": 15000
+    }
+  }
+}
