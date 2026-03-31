@@ -1,0 +1,127 @@
+Step 1 — API endpoints browser سے test کریں
+Browser میں کھولیں:
+
+http://SERVER_IP:8090/docs
+مثلاً:
+
+http://3.238.205.234:8090/docs
+یہاں FastAPI کا Swagger interface کھل جائے گا۔
+آپ یہاں سے:
+late staff
+attendance summary
+staff history
+سب test کر سکتے ہیں۔
+Step 2 — API call example
+مثلاً آج کی attendance summary:
+
+GET /api/attendance/summary-today
+curl سے:
+Bash
+curl -H "X-API-Token: super-secret-api-token" \
+"http://3.238.205.234:8090/api/attendance/summary-today?organization_code=MSC&campus_code=BOYS&branch_code=MAIN"
+Expected response:
+JSON
+{
+ "present": 48,
+ "late": 5,
+ "absent": 2
+}
+Step 3 — OpenClaw کو API connect کریں
+OpenClaw configuration میں یہ tool add کریں:
+JSON
+{
+ "name": "attendance_api",
+ "type": "http",
+ "base_url": "http://127.0.0.1:8090/api",
+ "headers": {
+   "X-API-Token": "super-secret-api-token"
+ }
+}
+Step 4 — OpenClaw prompt rules
+Agent کو بتائیں کہ کون سا سوال کس API کو call کرے۔
+Example:
+
+If user asks:
+
+"kon late hai"
+→ call /attendance/late-today
+
+"attendance summary"
+→ call /attendance/summary-today
+
+"most late staff"
+→ call /attendance/most-late
+
+"staff history"
+→ call /attendance/staff-history
+Step 5 — WhatsApp queries
+اب WhatsApp admin لکھے گا:
+مثال 1
+
+Mashriq Science ma aj kon late hai
+Reply:
+
+Mashriq Science late staff
+
+Ahmad — 7:32
+Usman — 7:35
+Ali — 7:38
+مثال 2
+
+Aaj ki attendance summary do
+Reply:
+
+Present: 48
+Late: 5
+Absent: 2
+مثال 3
+
+Is month sab se zyada late kaun hai
+Reply:
+
+Top Late Staff
+
+1 Ahmad — 9 days
+2 Usman — 7 days
+3 Ali — 6 days
+Step 6 — Authorized WhatsApp numbers
+Database میں یہ table use کریں:
+SQL
+CREATE TABLE authorized_contacts (
+    id SERIAL PRIMARY KEY,
+    phone_number VARCHAR(20) UNIQUE,
+    name TEXT,
+    role TEXT,
+    active BOOLEAN DEFAULT TRUE
+);
+Example:
+SQL
+INSERT INTO authorized_contacts (phone_number,name,role)
+VALUES ('923347009111','Principal','admin');
+Step 7 — Cron job (auto reports)
+Daily report کیلئے:
+Bash
+crontab -e
+Add:
+
+0 7 * * * python3 /opt/zkteco/daily_summary.py
+Step 8 — Timing system (future proof)
+آپ نے جو rule بتایا وہ implement کریں:
+Role
+Offset
+Head
+-30 min
+Teacher
+-15 min
+Grace
++3 min
+Table:
+SQL
+CREATE TABLE timing_policy (
+ organization TEXT,
+ branch TEXT,
+ institution_time TIME,
+ teacher_offset INT,
+ head_offset INT,
+ grace_minutes INT
+);
